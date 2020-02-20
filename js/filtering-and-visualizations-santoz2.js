@@ -2,7 +2,7 @@
 // for more about line graphs check out this example:
 // https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
 
-const margin = { top: 50, right: 50, bottom: 50, left: 50 }
+const margin = { top: 75, right: 75, bottom: 75, left: 75 }
     , width = 800 - margin.left - margin.right // Use the window's width 
     , height = 600 - margin.top - margin.bottom // Use the window's height
 
@@ -26,15 +26,18 @@ d3.csv('data/gapminder.csv').then((data) => {
 
     //Removes data with null populations
     data = data.filter(d => d['population'] != "NA");
+    data = data.filter(d => d['fertility'] != "NA");
+    data = data.filter(d => d['life_expectancy'] != "NA");
+    data = data.filter(d => d['year'] != "NA");
 
     // get only data for the year 1980
     const data1980 = data.filter(d => d['year'] == "1980");
 
     // get fertility min and max for us
-    const fertilityLimits = d3.extent(data1980, d => d['fertility'])
+    const fertilityLimits = d3.extent(data1980, d => +d['fertility'])
 
     // get min and max life expectancy for US
-    const lifeExpectancyLimits = d3.extent(data1980, d => d['life_expectancy'])
+    const lifeExpectancyLimits = d3.extent(data1980, d => +d['life_expectancy'])
 
 
 
@@ -67,23 +70,23 @@ d3.csv('data/gapminder.csv').then((data) => {
 
 
     // get only data for the US
-    const dataUS = data.filter(d => d['country'] == "United States");
-    
+    let dataCountry = data.filter(d => d['country'] == "United States");
+
 
     // get time min and max for us
-    const timeLimits = d3.extent(dataUS, d => d['year']);
+    let timeLimits = d3.extent(dataCountry, d => +d['year']);
 
     // get min and max population for US
-    const populationLimits = d3.extent(dataUS, d => d['population']);
+    let populationLimits = d3.extent(dataCountry, d => +d['population']);
 
 
     // get scaling function for time (x axis)
-    const xScaleTooltip = d3.scaleLinear()
+    let xScaleTooltip = d3.scaleLinear()
         .domain([timeLimits[0], timeLimits[1]])
         .range([margin.left, width + margin.left]);
 
     // get scaling function for population y axis
-    const yScaleTooltip = d3.scaleLinear()
+    let yScaleTooltip = d3.scaleLinear()
         .domain([populationLimits[1], populationLimits[0]])
         .range([margin.top, margin.top + height]);
 
@@ -92,12 +95,12 @@ d3.csv('data/gapminder.csv').then((data) => {
 
 
     // make tooltip x axis
-    const tooltipXAxis = tooltipSvg.append("g")
+    let tooltipXAxis = tooltipSvg.append("g")
         .attr("transform", "translate(0," + (height + margin.top) + ")")
         .call(d3.axisBottom(xScaleTooltip));
 
     // make tooltip y axis
-    const tooltipYAxis = tooltipSvg.append("g")
+    let tooltipYAxis = tooltipSvg.append("g")
         .attr("transform", "translate(" + margin.left + ",0)")
         .call(d3.axisLeft(yScaleTooltip));
 
@@ -106,7 +109,7 @@ d3.csv('data/gapminder.csv').then((data) => {
 
 
     // d3's line generator
-    const line = d3.line()
+    let line = d3.line()
         .x(d => xScaleTooltip(d['year'])) // set the x values for the line generator
         .y(d => yScaleTooltip(d['population'])) // set the y values for the line generator 
 
@@ -127,7 +130,7 @@ d3.csv('data/gapminder.csv').then((data) => {
     tooltipSvg.append("path")
         // difference between data and datum:
         // https://stackoverflow.com/questions/13728402/what-is-the-difference-d3-datum-vs-data
-        .datum(dataUS)
+        .datum(dataCountry)
         .attr("d", function (d) { return line(d) })
         .attr("fill", "steelblue")
         .attr("stroke", "steelblue")
@@ -141,6 +144,115 @@ d3.csv('data/gapminder.csv').then((data) => {
         .attr('r', 4)
         .attr('fill', 'steelblue')
         .on("mouseover", function (d) {
+
+            let thisCountry = d["country"];
+            console.log(thisCountry);
+            tooltipSvg.html("");
+
+
+
+
+            // get only data for selected country
+            dataCountry = data.filter(d => d['country'] == thisCountry);
+
+
+            // get time min and max for us
+            timeLimits = d3.extent(dataCountry, d => +d['year']);
+
+            // get min and max population for US
+            populationLimits = d3.extent(dataCountry, d => +d['population']);
+
+
+            // get scaling function for time (x axis)
+            xScaleTooltip = d3.scaleLinear()
+                .domain([timeLimits[0], timeLimits[1]])
+                .range([margin.left, width + margin.left]);
+
+            // get scaling function for population y axis
+            yScaleTooltip = d3.scaleLinear()
+                .domain([populationLimits[1], populationLimits[0]])
+                .range([margin.top, margin.top + height]);
+
+            console.log(timeLimits[0], timeLimits[1]);
+            console.log([populationLimits[1], populationLimits[0]]);
+        
+
+
+            // make tooltip x axis
+            tooltipXAxis = tooltipSvg.append("g")
+                .attr("transform", "translate(0," + (height + margin.top) + ")")
+                .call(d3.axisBottom(xScaleTooltip));
+
+            // make tooltip y axis
+            tooltipYAxis = tooltipSvg.append("g")
+                .attr("transform", "translate(" + margin.left + ",0)")
+                .call(d3.axisLeft(yScaleTooltip));
+
+
+
+
+
+            // d3's line generator
+            line = d3.line()
+                .x(d => xScaleTooltip(d['year'])) // set the x values for the line generator
+                .y(d => yScaleTooltip(d['population'])) // set the y values for the line generator 
+
+
+            /*        
+                // append line to svg
+                svg.append("path")
+                    // difference between data and datum:
+                    // https://stackoverflow.com/questions/13728402/what-is-the-difference-d3-datum-vs-data
+                    .datum(data)
+                    .attr("d", function (d) { return line(d) })
+                    .attr("fill", "steelblue")
+                    .attr("stroke", "steelblue")
+            */
+
+
+            // append line to svg
+            tooltipSvg.append("path")
+                // difference between data and datum:
+                // https://stackoverflow.com/questions/13728402/what-is-the-difference-d3-datum-vs-data
+                .datum(dataCountry)
+                .attr("d", function (d) { return line(d) })
+                .attr("fill", "steelblue")
+                .attr("stroke", "steelblue")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             div.transition()
                 .duration(200)
                 .style('opacity', 0.9)
