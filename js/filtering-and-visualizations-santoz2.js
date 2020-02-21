@@ -2,7 +2,7 @@
 Zaijen Santos
 INFO 474
 2/20/2020
-Filtering and Visualization in ToolTips
+Filtering and Visualization in Tooltips
 
 */
 
