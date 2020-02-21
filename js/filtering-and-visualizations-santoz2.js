@@ -10,12 +10,12 @@ const margin = { top: 75, right: 75, bottom: 75, left: 75 }
 d3.csv('data/gapminder.csv').then((data) => {
 
     // append the div which will be the tooltip
-    const div = d3.select('body').append('div')
+    const div = d3.select('#filters').append('div')
         .attr('class', 'tooltip')
         .style('opacity', 0);
 
-    // make an svg and append it to body
-    const svg = d3.select('body').append("svg")
+    // make an svg and append it to #filters
+    const svg = d3.select('#filters').append("svg")
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
 
@@ -135,6 +135,33 @@ d3.csv('data/gapminder.csv').then((data) => {
         .attr("fill", "steelblue")
         .attr("stroke", "steelblue")
 
+    //Add the Axis Labels
+    svg.append("text")
+        .attr("transform",
+            "translate(" + 400 + " ," +
+            (580) + ")")
+        .style("text-anchor", "middle")
+        .text("Fertility");
+
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 20)
+        .attr("x", 0 - 300)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Life Expectancy");
+
+    svg.append("text")
+        .attr("transform",
+            "translate(" + 15 + " ," +
+            (margin.top - 15) + ")")
+        .style("text-anchor", "left")
+        .style("font-size", "20px")
+        .text("Life Expectancy Vs Fertility Per Country in 1980");
+
+
+
+
     // append dots to svg to track data points
     svg.selectAll('.dot').data(data1980)
         .enter()
@@ -146,7 +173,7 @@ d3.csv('data/gapminder.csv').then((data) => {
         .on("mouseover", function (d) {
 
             let thisCountry = d["country"];
-            console.log(thisCountry);
+            //console.log(thisCountry);
             tooltipSvg.html("");
 
 
@@ -173,9 +200,9 @@ d3.csv('data/gapminder.csv').then((data) => {
                 .domain([populationLimits[1], populationLimits[0]])
                 .range([margin.top, margin.top + height]);
 
-            console.log(timeLimits[0], timeLimits[1]);
-            console.log([populationLimits[1], populationLimits[0]]);
-        
+            //console.log(timeLimits[0], timeLimits[1]);
+            //console.log([populationLimits[1], populationLimits[0]]);
+
 
 
             // make tooltip x axis
@@ -217,28 +244,31 @@ d3.csv('data/gapminder.csv').then((data) => {
                 .datum(dataCountry)
                 .attr("d", function (d) { return line(d) })
                 .attr("fill", "steelblue")
-                .attr("stroke", "steelblue")
+                .attr("stroke", "steelblue");
 
+            //Add the Axis Labels
+            tooltipSvg.append("text")
+                .attr("transform",
+                    "translate(" + 400 + " ," +
+                    (580) + ")")
+                .style("text-anchor", "middle")
+                .text("Year");
 
+            tooltipSvg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 2)
+                .attr("x", 0 - 300)
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Population");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            tooltipSvg.append("text")
+                .attr("transform",
+                    "translate(" + 15 + " ," +
+                    (margin.top - 15) + ")")
+                .style("text-anchor", "left")
+                .style("font-size", "20px")
+                .text("Population by Year in " + thisCountry);
 
 
 
