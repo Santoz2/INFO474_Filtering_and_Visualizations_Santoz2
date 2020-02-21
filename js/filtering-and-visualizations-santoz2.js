@@ -1,6 +1,10 @@
+/*
+Zaijen Santos
+INFO 474
+2/20/2020
+Filtering and Visualization in ToolTips
 
-// for more about line graphs check out this example:
-// https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
+*/
 
 const margin = { top: 75, right: 75, bottom: 75, left: 75 }
     , width = 800 - margin.left - margin.right // Use the window's width 
@@ -168,7 +172,14 @@ d3.csv('data/gapminder.csv').then((data) => {
         .append('circle')
         .attr('cx', d => xScale(d['fertility']))
         .attr('cy', d => yScale(d['life_expectancy']))
-        .attr('r', 4)
+        //.attr('r', 4)
+        .attr('r', function(d) {
+            let popLimits = d3.extent(data, function(d) { return +d['population'] })
+            let populationScale = d3.scaleLinear()
+            .domain([popLimits[0], popLimits[1]])
+            .range([5, 30])
+            return populationScale(+d['population']) 
+        })
         .attr('fill', 'steelblue')
         .on("mouseover", function (d) {
 
@@ -270,19 +281,6 @@ d3.csv('data/gapminder.csv').then((data) => {
                 .style("font-size", "20px")
                 .text("Population by Year in " + thisCountry);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
             div.transition()
                 .duration(200)
                 .style('opacity', 0.9)
@@ -297,19 +295,14 @@ d3.csv('data/gapminder.csv').then((data) => {
         })
 
 
-    /*
-        //new
-        let year2000 = data.filter(function (d) { return +d['year'] > 2000 })
-        console.log(year2000);
+        let over100Mil = data1980.filter(function (d) { return +d['population'] > 100000000 })
     
         svg.selectAll('.text')
-            .data(year2000)
+            .data(over100Mil)
             .enter()
             .append('text')
-            .attr('x', function (d) { return xScale(+d['fertility']) })
-            .attr('y', function (d) { return yScale(+d['life_expectancy']) - 20 })
-            .text(function (d) { return d['infant_mortality'] })
-    
-    */
+            .attr('x', function (d) { return xScale(+d['fertility']) + 20})
+            .attr('y', function (d) { return yScale(+d['life_expectancy'])})
+            .text(function (d) { return d['country'] })
 
 })
